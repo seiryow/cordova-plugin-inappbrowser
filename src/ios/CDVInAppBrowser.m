@@ -205,10 +205,7 @@
     
     if (browserOptions.useragent != nil) {
         
-        [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
-            _userAgentLockToken = lockToken;
-            [CDVUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
-            [self.webView loadRequest:request];
+        [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {            [CDVUserAgentUtil setUserAgent: browserOptions.useragent  lockToken:lockToken];
         }];
     }
 }
