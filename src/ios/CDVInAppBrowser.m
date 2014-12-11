@@ -196,10 +196,20 @@
         self.inAppBrowserViewController.webView.keyboardDisplayRequiresUserAction = browserOptions.keyboarddisplayrequiresuseraction;
         self.inAppBrowserViewController.webView.suppressesIncrementalRendering = browserOptions.suppressesincrementalrendering;
     }
-
+    
     [self.inAppBrowserViewController navigateTo:url];
     if (!browserOptions.hidden) {
         [self show:nil];
+    }
+    
+    
+    if (browserOptions.useragent != nil) {
+        
+        [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
+            _userAgentLockToken = lockToken;
+            [CDVUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
+            [self.webView loadRequest:request];
+        }];
     }
 }
 
@@ -596,11 +606,12 @@
     self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStyleBordered target:self action:@selector(close)];
     self.closeButton.enabled = YES;
     self.closeButton.tintColor = [UIColor colorWithRed:60.0 / 255.0 green:136.0 / 255.0 blue:230.0 / 255.0 alpha:1];
-
+    
     NSMutableArray* items = [self.toolbar.items mutableCopy];
     [items replaceObjectAtIndex:0 withObject:self.closeButton];
     [self.toolbar setItems:items];
 }
+
 
 - (void)showLocationBar:(BOOL)show
 {
@@ -910,6 +921,8 @@
         self.location = YES;
         self.toolbar = YES;
         self.closebuttoncaption = nil;
+        
+        self.useragent = nil;
         self.toolbarposition = kInAppBrowserToolbarBarPositionBottom;
         self.clearcache = NO;
         self.clearsessioncache = NO;
