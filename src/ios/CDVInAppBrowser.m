@@ -196,18 +196,16 @@
         self.inAppBrowserViewController.webView.keyboardDisplayRequiresUserAction = browserOptions.keyboarddisplayrequiresuseraction;
         self.inAppBrowserViewController.webView.suppressesIncrementalRendering = browserOptions.suppressesincrementalrendering;
     }
-    
-    [self.inAppBrowserViewController navigateTo:url];
+    NSString* useragent = @"";
+    if (browserOptions.useragent != nil) {
+        useragent=browserOptions.useragent;
+    }
+    [self.inAppBrowserViewController navigateTo:url useragent:(NSString *)useragent];
     if (!browserOptions.hidden) {
         [self show:nil];
     }
     
     
-    if (browserOptions.useragent != nil) {
-        
-        [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {            [CDVUserAgentUtil setUserAgent: browserOptions.useragent  lockToken:lockToken];
-        }];
-    }
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command
@@ -758,10 +756,12 @@
     });
 }
 
-- (void)navigateTo:(NSURL*)url
+- (void)navigateTo:(NSURL*)url  useragent:(NSString *) useragent
 {
     NSURLRequest* request = [NSURLRequest requestWithURL:url];
-
+    if (![useragent isEqual:@""]){
+        _userAgent=useragent;
+    }
     if (_userAgentLockToken != 0) {
         [self.webView loadRequest:request];
     } else {
